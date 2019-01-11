@@ -23,7 +23,7 @@ The consequences of failing to synchronize access to shared mutable data can be 
 即使数据是原子可读和可写的，对共享可变数据的同步访问失败的后果也是可怕的。考虑从一个线程停止另一个线程的任务。Java库提供了Thread.stop方法，但这种方法在很久以前就被弃用了，因为它本质上是不安全的——它的使用会导致数据损坏。**不要使用Thread.stop。** 一种建议的从一个线程停止另一个线程的方法是让第一个线程轮询一个布尔字段，该字段最初为false，但可以由第二个线程将其设置为true，以指示第一个线程停止自己。因为读写布尔字段是原子的，一些程序员在访问该字段时不需要同步:
 
 ```
-// Broken! - 坏了! - 你觉得这个程序会运行多久？
+// Broken! - How long would you expect this program to run?
 public class StopThread {
     private static boolean stopRequested;
     public static void main(String[] args) throws InterruptedException {
@@ -62,7 +62,6 @@ This optimization is known as hoisting, and it is precisely what the OpenJDK Ser
 
 ```
 // Properly synchronized cooperative thread termination
-// 正确的停止一个同步线程
 public class StopThread {
     private static boolean stopRequested;
     
@@ -97,7 +96,6 @@ The actions of the synchronized methods in StopThread would be atomic even witho
 
 ```
 // Cooperative thread termination with a volatile field
-// 用volatile修饰的字段停止一个同步线程
 public class StopThread {
     private static volatile boolean stopRequested;
     public static void main(String[] args) throws InterruptedException {
@@ -143,7 +141,6 @@ Better still, follow the advice in Item 59 and use the class AtomicLong, which i
 
 ```
 // Lock-free synchronization with java.util.concurrent.atomic
-// 通过java.util.concurrent.atomic实现无锁同步
 private static final AtomicLong nextSerialNum = new AtomicLong();
 public static long generateSerialNumber() {
     return nextSerialNum.getAndIncrement();
