@@ -4,6 +4,7 @@
 
 An enumerated type is a type whose legal values consist of a fixed set of constants, such as the seasons of the year, the planets in the solar system, or the suits in a deck of playing cards. Before enum types were added to the language, a common pattern for representing enumerated types was to declare a group of named int constants, one for each member of the type:
 
+一个枚举类型是一个由一系列固定的常量组成的类，比如一年的四季，太阳系的星球，或者一副扑克牌中的花色。在枚举被添加到Java之前，一个提供枚举类型的常用模式是什么一组int型的常量，每个代表一个类型：
 ```
 // The int enum pattern - severely deficient!
 public static final int APPLE_FUJI = 0;
@@ -16,6 +17,8 @@ public static final int ORANGE_BLOOD = 2;
 
 This technique, known as the int enum pattern, has many shortcomings. It provides nothing in the way of type safety and little in the way of expressive power. The compiler won’t complain if you pass an apple to a method that expects an orange, compare apples to oranges with the == operator, or worse:
 
+这种被称为int型枚举模式的做法有许多不足。它没有为类型提供任何安全性和表达性，当你传递一个苹果给一个参数为橘子的方法编译器不会报错，用==操作符来比较苹果和橘子也不会报错，或许更糟：
+
 ```
 // Tasty citrus flavored applesauce!
 int i = (APPLE_FUJI - ORANGE_TEMPLE) / APPLE_PIPPIN;
@@ -23,32 +26,62 @@ int i = (APPLE_FUJI - ORANGE_TEMPLE) / APPLE_PIPPIN;
 
 Note that the name of each apple constant is prefixed with APPLE_ and the name of each orange constant is prefixed with ORANGE_. This is because Java doesn’t provide namespaces for int enum groups. Prefixes prevent name clashes when two int enum groups have identically named constants, for example between ELEMENT_MERCURY and PLANET_MERCURY.
 
+注意到，每个代表苹果的常量前缀由APPLE_组成，每个代表橘子的常量前缀由ORANGE_组成。这么做是因为Java没有提供int型的枚举类型提供名称信息。前缀防止当两组
+枚举有相同名称的枚举类型时名称冲突，例如 ELEMENT_MERCURY 和 PLANET_MERCURY。
+
 Programs that use int enums are brittle. Because int enums are constant variables [JLS, 4.12.4], their int values are compiled into the clients that use them [JLS, 13.1]. If the value associated with an int enum is changed, its clients must be recompiled. If not, the clients will still run, but their behavior will be incorrect.
+
+程序用int型枚举时是脆弱的。因为int型的枚举是可变常量 [JLS, 4.12.4]，它们的int值被编译到使用它们的客户机中 [JLS, 13.1]。如果一个int型枚举的值被改变，使用它的客户端必须重新编译。如果不重新编译，客户端仍然可以运行，但是客户端的行为将会不正确。
 
 There is no easy way to translate int enum constants into printable strings. If you print such a constant or display it from a debugger, all you see is a number, which isn’t very helpful. There is no reliable way to iterate over all the int enum constants in a group, or even to obtain the size of an int enum group.
 
+没有好的方式将int型枚举转化为可以打印的字符串。如果打印这样的常量或者在debug时展示这个常量，你将会看到一个数字，这不是很直观。也没有一种可靠的方法去迭代这种一组int型的枚举类型，甚至获取这组枚举的容量都做不到。
+
 You may encounter a variant of this pattern in which String constants are used in place of int constants. This variant, known as the String enum pattern, is even less desirable. While it does provide printable strings for its constants, it can lead naive users to hard-code string constants into client code instead of using field names. If such a hard-coded string constant contains a typographical error, it will escape detection at compile time and result in bugs at runtime. Also, it might lead to performance problems, because it relies on string comparisons.
+
+您可能会碰到这种模式的变体，它使用字符串常量代替int常量。这种变体被称为字符型枚举更加不合适。虽然它提供可打印的字符串常量，但它会引导使用者将字符串常量硬编码到客户机代码中，而不是使用字段名称。如果这种硬编码字符串常量含义有误，编译器检测不到错误，但是运行期结果却不对。同样的，它会有性能问题，因为它依赖字符串的比较。
 
 Luckily, Java provides an alternative that avoids all the shortcomings of the int and string enum patterns and provides many added benefits. It is the enum type [JLS, 8.9]. Here’s how it looks in its simplest form:
 
+幸运的是，Java提供一种选择可以避免以上int型枚举和字符串枚举的所有问题，并且提供很多额为的优势。这就是枚举类型 [JLS, 8.9]，以下是它最简单的形式：
+
 ```
-public enum Apple { FUJI, PIPPIN, GRANNY_SMITH }
-public enum Orange { NAVEL, TEMPLE, BLOOD }
+public enum Apple {
+    FUJI, PIPPIN, GRANNY_SMITH 
+}
+
+public enum Orange {
+    NAVEL, TEMPLE, BLOOD 
+}
 ```
 
 On the surface, these enum types may appear similar to those of other languages, such as C, C++, and C#, but appearances are deceiving. Java’s enum types are full-fledged classes, far more powerful than their counterparts in these other languages, where enums are essentially int values.
 
+表面上，这些枚举类型和其他语言的枚举类型很类似，比如C，C++和C#，但是表象是骗人的。在这些语言中，枚举本质上是int值，Java的枚举类型是成熟的类，比其他语言中的同类功能强大得多，
+
 The basic idea behind Java’s enum types is simple: they are classes that export one instance for each enumeration constant via a public static final field. Enum types are effectively final, by virtue of having no accessible constructors. Because clients can neither create instances of an enum type nor extend it, there can be no instances but the declared enum constants. In other words, enum types are instance-controlled (page 6). They are a generalization of singletons (Item 3), which are essentially single-element enums.
+
+Java枚举类型背后的基本思想很简单:它们是通过public static final字段为每个枚举常量导出一个实例的类。枚举类型实际上是final类型，因为没有可访问的构造函数。因为客户机既不能创建枚举类型的实例，也不能扩展它，所以除了声明的枚举常量之外，不能有任何实例。换句话说，枚举类型是由实例控制的(第6页)。
 
 Enums provide compile-time type safety. If you declare a parameter to be of type Apple, you are guaranteed that any non-null object reference passed to the parameter is one of the three valid Apple values. Attempts to pass values of the wrong type will result in compile-time errors, as will attempts to assign an expression of one enum type to a variable of another, or to use the == operator to compare values of different enum types.
 
+枚举提供编译时类型的安全性。如果将参数声明为Apple类型，则可以保证传递给该参数的任何非空对象引用都是三个有效Apple值之一。尝试传递错误类型的值将导致编译时错误，就像尝试将一个枚举类型的表达式分配给另一个枚举类型的变量，或者使用==运算符比较不同枚举类型的值一样。
+
 Enum types with identically named constants coexist peacefully because each type has its own namespace. You can add or reorder constants in an enum type without recompiling its clients because the fields that export the constants provide a layer of insulation between an enum type and its clients: constant values are not compiled into the clients as they are in the int enum patterns. Finally, you can translate enums into printable strings by calling their toString method.
+
+名称相同的枚举常量类型和平共存，因为每种类型都有自己的命名空间。您可以在枚举类型中添加或重新排序常量，而无需客户端重新编译，因为导出常量的字段在枚举类型及其客户端之间提供了一层隔离:常量值不会像在int型枚举模式中那样编译到客户端中。最后，您可以通过调用枚举的toString方法将其转换为可打印的字符串。
 
 In addition to rectifying the deficiencies of int enums, enum types let you add arbitrary methods and fields and implement arbitrary interfaces. They provide high-quality implementations of all the Object methods (Chapter 3), they implement Comparable (Item 14) and Serializable (Chapter 12), and their serialized form is designed to withstand most changes to the enum type.
 
+除了纠正int枚举的不足之外，枚举类型还允许您添加任意方法和字段并实现任意接口。它们提供了所有对象方法的高质量实现(第3章)，实现了Comparable接口(第14项)和Serializable接口(第12章)，并且它们的序列化形式被设计成能够承受枚举类型的大多数更改。
+
 So why would you want to add methods or fields to an enum type? For starters, you might want to associate data with its constants. Our Apple and Orange types, for example, might benefit from a method that returns the color of the fruit, or one that returns an image of it. You can augment an enum type with any method that seems appropriate. An enum type can start life as a simple collection of enum constants and evolve over time into a full-featured abstraction.
 
+那么，为什么要向枚举类型添加方法或字段呢？首先，您可能希望将数据与其常量关联起来。例如，我们的Apple和Orange类型可能受益于返回水果颜色的方法，或者返回水果图像的方法。您可以使用任何适当的方法来扩充枚举类型。枚举类型可以从枚举常量的简单集合开始，并随着时间的推移演变为功能齐全的抽象。
+
 For a nice example of a rich enum type, consider the eight planets of our solar system. Each planet has a mass and a radius, and from these two attributes you can compute its surface gravity. This in turn lets you compute the weight of an object on the planet’s surface, given the mass of the object. Here’s how this enum looks. The numbers in parentheses after each enum constant are parameters that are passed to its constructor. In this case, they are the planet’s mass and radius:
+
+一个枚举类型的很好例子我们太阳系的八颗行星。每颗行星都有质量和半径，通过这两个属性你可以计算出它的表面引力。这反过来让你计算出一个物体在行星表面的重量，给定物体的质量。这个枚举是这样的。每个枚举常量后括号中的数字是传递给其构造函数的参数。在这种情况下，它们是行星的质量和半径:
 
 ```
 // Enum type with data and behavior
@@ -87,6 +120,8 @@ public enum Planet {
 
 It is easy to write a rich enum type such as Planet. **To associate data with enum constants, declare instance fields and write a constructor that takes the data and stores it in the fields.** Enums are by their nature immutable, so all fields should be final (Item 17). Fields can be public, but it is better to make them private and provide public accessors (Item 16). In the case of Planet, the constructor also computes and stores the surface gravity, but this is just an optimization. The gravity could be recomputed from the mass and radius each time it was used by the surfaceWeight method, which takes an object’s mass and returns its weight on the planet represented by the constant. While the Planet enum is simple, it is surprisingly powerful. Here is a short program that takes the earth weight of an object (in any unit) and prints a nice table of the object’s weight on all eight planets (in the same unit):
 
+编写一个富枚举类型(如Planet)很容易。**要将数据与枚举常量关联，声明实例字段并编写一个构造函数，该构造函数接受数据并将其存储在字段中。**枚举本质上是不可变的，因此所有字段都应该是final (Item 17)。字段可以是公共的，但是最好将它们设置为私有并提供公共访问器(Item 16)。在Planet的情况下，构造函数还计算和存储表面重力，但这只是一个优化。每一次使用surfaceWeight方法时，都可以从质量和半径重新计算重力。surfaceWeight方法获取一个物体的质量，并返回其在该常数所表示的行星上的重量。虽然行星全会很简单，但它的力量惊人。下面是一个简短的程序，它获取一个物体的地球重量(以任何单位表示)，并打印一个漂亮的表格，显示该物体在所有8个行星上的重量(以相同的单位表示):
+
 ```
 public class WeightTable {
     public static void main(String[] args) {
@@ -100,6 +135,8 @@ public class WeightTable {
 
 Note that Planet, like all enums, has a static values method that returns an array of its values in the order they were declared. Note also that the toString method returns the declared name of each enum value, enabling easy printing by println and printf. If you’re dissatisfied with this string representation, you can change it by overriding the toString method. Here is the result of running our WeightTable program (which doesn’t override toString) with the command line argument 185:
 
+请注意，Planet和所有枚举一样，有一个静态值方法，该方法按照声明值的顺序返回其值的数组。还要注意的是，toString方法返回每个枚举值的声明名称，这样就可以通过println和printf轻松打印。如果您对这个字符串表示不满意，可以通过重写toString方法来更改它。下面是用命令行参数185运行我们的WeightTable程序(它不覆盖toString)的结果:
+
 ```
 Weight on MERCURY is 69.912739
 Weight on VENUS is 167.434436
@@ -112,6 +149,8 @@ Weight on NEPTUNE is 210.208751
 ```
 
 Until 2006, two years after enums were added to Java, Pluto was a planet. This raises the question “what happens when you remove an element from an enum type?” The answer is that any client program that doesn’t refer to the removed element will continue to work fine. So, for example, our WeightTable program would simply print a table with one fewer row. And what of a client program that refers to the removed element (in this case, Planet.Pluto)? If you recompile the client program, the compilation will fail with a helpful error message at the line that refers to the erstwhile planet; if you fail to recompile the client, it will throw a helpful exception from this line at runtime. This is the best behavior you could hope for, far better than what you’d get with the int enum pattern.
+
+直到2006年，也就是枚举被添加到Java的两年后，冥王星还是一颗行星。这就提出了一个问题:“从枚举类型中删除元素时会发生什么？”答案是，任何不引用被删除元素的客户端程序将继续正常工作。例如，我们的WeightTable程序只需打印一个少一行的表。那么引用被删除元素(在本例中是Planet.Pluto)的客户机程序又如何呢？如果重新编译客户端程序，编译将失败，并在引用以前的行星的行中显示一条有用的错误消息；如果您未能重新编译客户机，它将在运行时从这行抛出一个有用的异常。这是您所希望的最佳行为，比int型枚举模式要好得多。
 
 Some behaviors associated with enum constants may need to be used only from within the class or package in which the enum is defined. Such behaviors are best implemented as private or package-private methods. Each constant then carries with it a hidden collection of behaviors that allows the class or package containing the enum to react appropriately when presented with the constant. Just as with other classes, unless you have a compelling reason to expose an enum method to its clients, declare it private or, if need be, package-private (Item 15).
 
