@@ -99,7 +99,7 @@ Effective Java（第3版）各章节的中英文对照
     - [Item 77: Don’t ignore exceptions](Chapter-10-Item-77-Don’t-ignore-exceptions.md)
 - **Chapter 11. Concurrency（并发）**
     - [Chapter 11 Introduction（章节介绍）](Chapter-11-Introduction.md)
-    - [Item 78: Synchronize access to shared mutable data](Chapter-11-Item-78-Synchronize-access-to-shared-mutable-data.md)
+    - [Item 78: Synchronize access to shared mutable data（同步访问公共的可变对象）](Chapter-11-Item-78-Synchronize-access-to-shared-mutable-data.md)
     - [Item 79: Avoid excessive synchronization](Chapter-11-Item-79-Avoid-excessive-synchronization.md)
     - [Item 80: Prefer executors, tasks, and streams to threads](Chapter-11-Item-80-Prefer-executors,-tasks,-and-streams-to-threads.md)
     - [Item 81: Prefer concurrency utilities to wait and notify](Chapter-11-Item-81-Prefer-concurrency-utilities-to-wait-and-notify.md)
