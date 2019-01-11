@@ -1,6 +1,6 @@
 ## Chapter 11. Concurrency（并发）
 
-### Item 78: Synchronize access to shared mutable data（同步访问公共的可变数据）
+### Item 78: Synchronize access to shared mutable data（同步访问共享的可变数据）
 
 The synchronized keyword ensures that only a single thread can execute a method or block at one time. Many programmers think of synchronization solely as a means of mutual exclusion, to prevent an object from being seen in an inconsistent state by one thread while it’s being modified by another. In this view, an object is created in a consistent state (Item 17) and locked by the methods that access it. These methods observe the state and optionally cause a state transition, transforming the object from one consistent state to another. Proper use of synchronization guarantees that no method will ever observe the object in an inconsistent state.
 
